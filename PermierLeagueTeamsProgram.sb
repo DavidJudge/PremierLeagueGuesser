@@ -1,0 +1,175 @@
+'Variable Declaration
+i = 1 'Used for initial file read iteration
+l = 0 'Used for length of [teams] array
+c = 0 'Used for printTeams iteration
+x = 0 'Used for recording entered teams into [entered] array
+y = 0 'Used for enteredTeams iteration
+cmd = 1 'Used to tell if a command has been entered
+filepathtxt = Program.Directory + "\TeamNames.txt"
+filepathimage = Program.Directory + "\Congrats.png"
+score = 0
+congrats = ImageList.LoadImage(filepathimage)
+
+'For loop which retrieves all 20 teams and stores the count in L
+While i < 21
+  teams[i] = File.ReadLine(filepathtxt,i)
+  i = i + 1
+  l = Array.GetItemCount(teams)
+EndWhile
+
+'Game Loop
+TextWindow.Top = 50
+TextWindow.Left = 50
+While score < 20
+  TextWindow.WriteLine("")
+  prompt()
+  checkCommand()
+  checkTeam()
+  informUser()
+  scoreChecker()
+EndWhile
+
+'###### SUBROUTINES ONLY BELOW THIS POINT ######'
+
+'Writes number of items in [teams] array
+Sub printTeamsNumber
+  TextWindow.WriteLine("The number of items in the [teams] array is " + l)
+EndSub
+
+'Prints all items in [teams] array
+Sub printTeams
+  While c < l
+    TextWindow.WriteLine(teams[c])
+    c = c + 1
+  EndWhile
+EndSub
+
+'Prompts user to enter a team name and stores the entered value into INPUT.
+Sub prompt
+  TextWindow.Write("Please enter a team name: ")
+  input = TextWindow.Read()
+  cmd = 0
+EndSub
+
+'Checks if the user has entered a command and takes the appropriate action
+Sub checkCommand
+  If input = "exit" Or input = "Exit" Then
+    Program.End()
+  Else
+    If input = "winwin" Then
+      congratulations()
+      cmd = 1
+    Else
+      If input = "printteams" Then
+        printTeams()
+        cmd = 1
+      Else
+        If input = "printteamsnumber" Then
+          printTeamsNumber()
+          cmd = 1
+        Else
+          If input = "printentered" Then
+            printEntered()
+            cmd = 1
+          Else
+            If input = "printcommands" Then
+              printCommands()
+              cmd = 1
+            EndIf 'printcommands
+          EndIf ' printentered
+        EndIf 'printteamsnumber
+      EndIf 'printteams
+    EndIf 'winwin
+  EndIf 'exit
+EndSub
+
+'Prints available commands
+Sub printCommands
+  TextWindow.WriteLine("'Exit' or 'exit'")
+  TextWindow.WriteLine("'winwin'")
+  TextWindow.WriteLine("'printteams'")
+  TextWindow.WriteLine("'printteamsnumber'")
+  TextWindow.WriteLine("'printentered'")
+  TextWindow.WriteLine("'printcommands'")
+EndSub
+
+'Checks if entered team is in the [teams] array
+Sub checkTeam
+  teamchecked = 0 'resets value every time sub is called
+  If cmd = 1 Then
+  Else
+    If Array.ContainsValue(teams,input) Then
+      If Array.ContainsValue(entered,input) Then
+        teamchecked = 3
+      Else
+        teamchecked = 1
+        enteredTeam()
+      EndIf
+    Else
+      teamchecked = 2
+    EndIf
+  EndIf
+EndSub
+
+'Tells user if the entered team is in the [teams] array, and if so increments score by 1
+Sub informUser
+  If teamchecked = 1 Then
+    TextWindow.WriteLine("Congratulations! That team is in the Premier League.")
+    score = score + 1
+  Else
+    If teamchecked = 2 Then
+      TextWindow.WriteLine("Sorry. That team is not in the Premier League.")
+  Else
+    If teamchecked = 3 Then
+    TextWindow.WriteLine("Sorry. That team has already been entered.")
+    EndIf
+  EndIf
+  EndIf
+EndSub
+
+'Keeps track of the score for the player, and initialised win condition when appropriate
+Sub  scoreChecker
+  If score < 20 Then
+    If teamchecked = 1 Then
+      TextWindow.WriteLine("Your score is now " + score)
+    Else
+      TextWindow.WriteLine("Your score is still " + score)
+    EndIf
+  Else
+    If score = 20 Then
+      TextWindow.Clear()
+      TextWindow.WriteLine("Please Wait..........")
+      Program.Delay(1000)
+      congratulations()
+    EndIf
+  EndIf
+EndSub
+
+'Enters a correct team into the array to be checked against, to prevent duplicate points from being issued
+Sub enteredTeam
+  entered[x] = input
+  x = x + 1
+EndSub
+
+'Prints [entered] teams array
+Sub printEntered
+  y = 0
+  While y < Array.GetItemCount(entered)
+    TextWindow.WriteLine(entered[y])
+    y = y + 1
+  EndWhile
+EndSub
+
+'Displays a graphic on the screen for a designated period of time, then terminates the program
+Sub congratulations
+  GraphicsWindow.Show()
+  TextWindow.Hide()
+  GraphicsWindow.Top = 50
+  GraphicsWindow.Left = 50
+  GraphicsWindow.Title = "Congratulations!"
+  GraphicsWindow.Height = 185
+  GraphicsWindow.Width = 505
+  GraphicsWindow.DrawImage(Congrats,0,0)
+  Program.Delay(3000)
+  Program.End()
+EndSub
